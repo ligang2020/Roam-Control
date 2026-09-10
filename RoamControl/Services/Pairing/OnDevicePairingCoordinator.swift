@@ -111,7 +111,7 @@ final class OnDevicePairingCoordinator {
 
         Task {
             do {
-                try await BGTaskScheduler.shared.submitTaskRequest(request)
+                try await BGTaskScheduler.shared.submit(request)
             } catch {
                 submittedTaskIdentifier = nil
                 recordStore = nil

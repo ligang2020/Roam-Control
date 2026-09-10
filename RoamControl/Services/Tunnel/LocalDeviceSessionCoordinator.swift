@@ -448,7 +448,7 @@ final class LocalDeviceSessionCoordinator: NSObject {
 
         Task {
             do {
-                try await BGTaskScheduler.shared.submitTaskRequest(request)
+                try await BGTaskScheduler.shared.submit(request)
             } catch {
                 BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: identifier)
                 self.submittedTaskIdentifier = nil
