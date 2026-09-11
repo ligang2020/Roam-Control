@@ -12,9 +12,9 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Appearance") {
+                Section("外观") {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Theme")
+                        Text("主题")
                             .font(.subheadline.weight(.medium))
 
                         themePicker
@@ -22,7 +22,7 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Map Style")
+                        Text("地图样式")
                             .font(.subheadline.weight(.medium))
 
                         mapStylePicker
@@ -30,12 +30,12 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 }
 
-                Section("Device") {
+                Section("设备") {
                     NavigationLink {
                         ConnectionHealthView()
                             .environment(appModel)
                     } label: {
-                        Label("Connection Health", systemImage: "stethoscope")
+                        Label("连接健康度", systemImage: "stethoscope")
                     }
 
                     Button {
@@ -52,53 +52,53 @@ struct SettingsView: View {
 
                 Section {
                     Toggle(
-                        "Share Anonymous Usage Statistics",
+                        "分享匿名使用统计",
                         isOn: anonymousUsageStatisticsBinding
                     )
 
                     NavigationLink {
                         UsageStatisticsPrivacyView()
                     } label: {
-                        Label("What Is Shared", systemImage: "hand.raised.fill")
+                        Label("分享内容", systemImage: "hand.raised.fill")
                     }
                 } header: {
-                    Text("Privacy")
+                    Text("隐私")
                 } footer: {
-                    Text("Optional and off by default. Helps estimate activity from participating installations. Locations, searches and pairing data are never included.")
+                    Text("可选功能，默认关闭。用于估算参与安装的活动量，绝不包含位置、搜索和配对数据。")
                 }
 
-                Section("About") {
+                Section("关于") {
                     NavigationLink {
                         AboutRoamControlView()
                     } label: {
-                        Label("About Roam Control", systemImage: "info.circle")
+                        Label("关于漫游控制", systemImage: "info.circle")
                     }
 
-                    LabeledContent("Version", value: versionText)
-                    LabeledContent("Build", value: buildNumberText)
-                    LabeledContent("Built", value: buildDateText)
+                    LabeledContent("版本", value: versionText)
+                    LabeledContent("构建号", value: buildNumberText)
+                    LabeledContent("构建时间", value: buildDateText)
 
                     Button {
                         isReplayingOnboarding = true
                     } label: {
-                        Label("Replay Introduction", systemImage: "sparkles")
+                        Label("重新查看介绍", systemImage: "sparkles")
                     }
                     .foregroundStyle(.primary)
                 }
 
                 Section {
-                    Button("Reset Roam Control", role: .destructive) {
+                    Button("重置漫游控制", role: .destructive) {
                         isConfirmingReset = true
                     }
                 } footer: {
-                    Text("This clears the pairing record and local app settings, then shows onboarding again. It does not remove or change LocalDevVPN.")
+                    Text("这会清除配对记录和本地应用设置，然后重新显示引导，不会移除或更改 LocalDevVPN。")
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("完成") { dismiss() }
                 }
             }
         }
@@ -112,32 +112,32 @@ struct SettingsView: View {
                 .environment(appModel)
         }
         .confirmationDialog(
-            "Reset Roam Control?",
+            "重置漫游控制？",
             isPresented: $isConfirmingReset,
             titleVisibility: .visible
         ) {
-            Button("Reset App", role: .destructive) {
+            Button("重置应用", role: .destructive) {
                 Task { await resetApp() }
             }
         } message: {
-            Text("Your pairing record and local choices will be removed. You will return to the welcome screen.")
+            Text("你的配对记录和本地选择将被移除，并返回欢迎界面。")
         }
-        .alert("Reset could not finish", isPresented: isShowingResetError) {
-            Button("OK", role: .cancel) {
+        .alert("无法完成重置", isPresented: isShowingResetError) {
+            Button("好", role: .cancel) {
                 resetError = nil
             }
         } message: {
-            Text(resetError ?? "Please try again.")
+            Text(resetError ?? "请重试。")
         }
     }
 
     private var connectionLabel: String {
         switch appModel.connectionState {
-        case .notConfigured: "Not paired"
-        case .ready: "Ready"
-        case .connecting: "Connecting"
-        case .active: "Active"
-        case .failed: "Problem"
+        case .notConfigured: "未配对"
+        case .ready: "就绪"
+        case .connecting: "正在连接"
+        case .active: "活动中"
+        case .failed: "有问题"
         }
     }
 
@@ -159,7 +159,7 @@ struct SettingsView: View {
     @ViewBuilder
     private var themePicker: some View {
         if dynamicTypeSize.isAccessibilitySize {
-            Picker("Theme", selection: appearanceBinding) {
+            Picker("主题", selection: appearanceBinding) {
                 ForEach(AppAppearance.allCases) { appearance in
                     Label(appearance.title, systemImage: appearance.systemImage)
                         .tag(appearance)
@@ -167,7 +167,7 @@ struct SettingsView: View {
             }
             .pickerStyle(.menu)
         } else {
-            Picker("Theme", selection: appearanceBinding) {
+            Picker("主题", selection: appearanceBinding) {
                 ForEach(AppAppearance.allCases) { appearance in
                     Label(appearance.title, systemImage: appearance.systemImage)
                         .tag(appearance)
@@ -181,14 +181,14 @@ struct SettingsView: View {
     @ViewBuilder
     private var mapStylePicker: some View {
         if dynamicTypeSize.isAccessibilitySize {
-            Picker("Map Style", selection: mapStyleBinding) {
+            Picker("地图样式", selection: mapStyleBinding) {
                 ForEach(MapDisplayStyle.allCases) { style in
                     Text(style.title).tag(style)
                 }
             }
             .pickerStyle(.menu)
         } else {
-            Picker("Map Style", selection: mapStyleBinding) {
+            Picker("地图样式", selection: mapStyleBinding) {
                 ForEach(MapDisplayStyle.allCases) { style in
                     Text(style.title).tag(style)
                 }
@@ -202,7 +202,7 @@ struct SettingsView: View {
     private var pairingConnectionLabel: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Pairing & Connection")
+                Text("配对与连接")
                 Text(connectionLabel)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -210,7 +210,7 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         } else {
             HStack {
-                Text("Pairing & Connection")
+                Text("配对与连接")
                 Spacer()
                 Text(connectionLabel)
                     .foregroundStyle(.secondary)
@@ -242,7 +242,7 @@ struct SettingsView: View {
 
     private var buildNumberText: String {
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-        return build ?? "Unknown"
+        return build ?? "未知"
     }
 
     private var buildDateText: String {
@@ -259,7 +259,7 @@ struct SettingsView: View {
             let executableURL = Bundle.main.executableURL,
             let values = try? executableURL.resourceValues(forKeys: [.contentModificationDateKey]),
             let buildDate = values.contentModificationDate
-        else { return "Unknown" }
+        else { return "未知" }
 
         return buildDate.formatted(date: .abbreviated, time: .shortened)
     }

@@ -71,8 +71,8 @@ final class MapViewModel: NSObject, MKLocalSearchCompleterDelegate {
     func selectDroppedPin(at coordinate: CLLocationCoordinate2D) async {
         await selectCoordinate(
             coordinate,
-            fallbackName: "Dropped Pin",
-            fallbackDescription: "Selected from the map",
+            fallbackName: "地图标记",
+            fallbackDescription: "从地图中选择",
             recenter: false
         )
     }
@@ -88,15 +88,15 @@ final class MapViewModel: NSObject, MKLocalSearchCompleterDelegate {
             resetSearchField()
             await selectCoordinate(
                 coordinate,
-                fallbackName: "Entered Location",
-                fallbackDescription: "Entered using coordinates",
+                fallbackName: "输入的位置",
+                fallbackDescription: "通过坐标输入",
                 recenter: true
             )
             isSearching = false
             return
         case .invalid:
             searchSuggestions = []
-            errorMessage = "Enter latitude from −90 to 90 and longitude from −180 to 180."
+            errorMessage = "请输入 −90 至 90 之间的纬度，以及 −180 至 180 之间的经度。"
             return
         case .notCoordinates:
             break
@@ -199,7 +199,7 @@ final class MapViewModel: NSObject, MKLocalSearchCompleterDelegate {
         do {
             let response = try await MKLocalSearch(request: request).start()
             guard let item = response.mapItems.first else {
-                errorMessage = "No matching place found."
+                errorMessage = "未找到匹配的地点。"
                 return
             }
 
@@ -222,7 +222,7 @@ final class MapViewModel: NSObject, MKLocalSearchCompleterDelegate {
         } catch is CancellationError {
             return
         } catch {
-            errorMessage = "Search is unavailable right now."
+            errorMessage = "搜索暂时不可用。"
         }
     }
 
@@ -235,7 +235,7 @@ final class MapViewModel: NSObject, MKLocalSearchCompleterDelegate {
         errorMessage = nil
         let pendingTarget = LocationTarget(
             name: fallbackName,
-            subtitle: "Finding nearby address…",
+            subtitle: "正在查找附近地址…",
             latitude: coordinate.latitude,
             longitude: coordinate.longitude
         )
@@ -348,7 +348,7 @@ final class MapViewModel: NSObject, MKLocalSearchCompleterDelegate {
         if let city = item.addressRepresentations?.cityWithContext, !city.isEmpty {
             return city
         }
-        return "Map search result"
+        return "地图搜索结果"
     }
 
     private func requestCurrentLocation(
@@ -383,14 +383,14 @@ final class MapViewModel: NSObject, MKLocalSearchCompleterDelegate {
                 if self.recenterOnNextRealLocation {
                     self.recenterOnNextRealLocation = false
                     if self.shouldReportLocationErrors {
-                        self.errorMessage = "Still finding your real location. Tap the location button to try again."
+                        self.errorMessage = "仍在查找你的真实位置。点击定位按钮重试。"
                     }
                 }
             }
         case .denied, .restricted:
             isFindingRealLocation = false
             if recenter && shouldReportLocationErrors {
-                errorMessage = "Allow Location access in Settings to show your real position."
+                errorMessage = "请在“设置”中允许定位权限，以显示你的真实位置。"
             }
         @unknown default:
             break
@@ -465,7 +465,7 @@ extension MapViewModel: CLLocationManagerDelegate {
                 if recenterOnNextRealLocation {
                     recenterOnNextRealLocation = false
                     if shouldReportLocationErrors {
-                        errorMessage = "Allow Location access in Settings to show your real position."
+                        errorMessage = "请在“设置”中允许定位权限，以显示你的真实位置。"
                     }
                 }
             case .notDetermined:
@@ -501,7 +501,7 @@ extension MapViewModel: CLLocationManagerDelegate {
             if recenterOnNextRealLocation {
                 recenterOnNextRealLocation = false
                 if shouldReportLocationErrors {
-                    errorMessage = "Your real location is not available yet."
+                    errorMessage = "暂时无法获取你的真实位置。"
                 }
             }
         }

@@ -12,7 +12,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Roam Control</string>
+	<string>漫游控制</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -52,9 +52,9 @@
 		<string>_remotepairing._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Roam Control uses the local network to securely pair with and control this iPhone through LocalDevVPN.</string>
+	<string>漫游控制需要使用本地网络，通过 LocalDevVPN 安全地配对和控制此 iPhone。</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Roam Control uses your location to show and recenter on your real position after a location session stops.</string>
+	<string>漫游控制使用你的位置信息，以便在位置控制停止后显示并重新定位到真实位置。</string>
 	<key>RoamControlBuildTimestamp</key>
 	<string>$(ROAMCONTROL_BUILD_TIMESTAMP)</string>
 	<key>RoamControlTelemetryAppID</key>

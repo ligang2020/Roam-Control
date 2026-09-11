@@ -72,7 +72,7 @@ struct MobileDataGuidanceView: View {
 
             if guidance == .connectionHelp {
                 Label(
-                    "Roam Control has not found LocalDevVPN's device connection yet.",
+                    "漫游控制尚未找到 LocalDevVPN 的设备连接。",
                     systemImage: "lock.shield"
                 )
                 .font(.caption)
@@ -80,23 +80,23 @@ struct MobileDataGuidanceView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
-                Button("Try Again", action: onRetry)
+                Button("重试", action: onRetry)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .frame(maxWidth: .infinity)
 
-                Button("Open LocalDevVPN", action: onOpenLocalDevVPN)
+                Button("打开 LocalDevVPN", action: onOpenLocalDevVPN)
                     .buttonStyle(.bordered)
 
-                Button("I'm Using Mobile Data", action: onUseMobileData)
+                Button("我正在使用移动数据", action: onUseMobileData)
                     .buttonStyle(.bordered)
 
-                Button("Cancel", role: .cancel, action: onCancel)
+                Button("取消", role: .cancel, action: onCancel)
                     .foregroundStyle(.secondary)
             } else if guidance == .turnOff {
                 HStack(spacing: 9) {
                     ProgressView()
-                    Text("Detecting this iPhone…")
+                    Text("正在检测此 iPhone…")
                         .font(.subheadline.weight(.semibold))
                 }
                 .padding(.horizontal, 18)
@@ -104,7 +104,7 @@ struct MobileDataGuidanceView: View {
                 .background(.thinMaterial, in: Capsule())
 
                 Label(
-                    "Roam Control should continue automatically. If it doesn't, tap Continue.",
+                    "漫游控制应会自动继续。如果没有，请点击“继续”。",
                     systemImage: "checkmark.seal.fill"
                 )
                 .font(.caption)
@@ -112,22 +112,22 @@ struct MobileDataGuidanceView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
-                Button("Continue", action: onMobileDataOff)
+                Button("继续", action: onMobileDataOff)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .frame(maxWidth: .infinity)
 
-                Button("Open LocalDevVPN", action: onOpenLocalDevVPN)
+                Button("打开 LocalDevVPN", action: onOpenLocalDevVPN)
                     .buttonStyle(.bordered)
 
-                Button("Cancel", role: .cancel, action: onCancel)
+                Button("取消", role: .cancel, action: onCancel)
                     .foregroundStyle(.secondary)
             } else {
-                Label("Location is active", systemImage: "location.fill")
+                Label("位置控制已启动", systemImage: "location.fill")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.green)
 
-                Button("Done", action: onDone)
+                Button("完成", action: onDone)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .frame(maxWidth: .infinity)
@@ -138,22 +138,22 @@ struct MobileDataGuidanceView: View {
     private var title: String {
         switch guidance {
         case .connectionHelp:
-            "Still Connecting"
+            "仍在连接"
         case .turnOff:
-            "Turn Mobile Data Off"
+            "关闭移动数据"
         case .turnBackOn:
-            "Turn Mobile Data Back On"
+            "重新打开移动数据"
         }
     }
 
     private var message: String {
         switch guidance {
         case .connectionHelp:
-            "If you're on Wi‑Fi, make sure LocalDevVPN says Connected, then try again. Choose mobile data only when you're actually using 4G or 5G."
+            "如果你使用的是 Wi‑Fi，请确认 LocalDevVPN 显示“已连接”，然后重试。仅在确实使用 4G 或 5G 时选择移动数据。"
         case .turnOff:
-            "Make sure LocalDevVPN is connected, switch mobile data off briefly, then return to Roam Control."
+            "请确认 LocalDevVPN 已连接，短暂关闭移动数据后，再返回漫游控制。"
         case .turnBackOn:
-            "The secure location session is ready. You can restore mobile data now; spoofing will continue over 5G."
+            "安全位置会话已就绪。现在可以恢复移动数据，位置模拟会继续通过 5G 运行。"
         }
     }
 

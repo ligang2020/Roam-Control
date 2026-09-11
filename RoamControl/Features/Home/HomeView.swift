@@ -44,7 +44,7 @@ struct HomeView: View {
                     }
 
                     if let coordinate = walkingSimulation.currentCoordinate {
-                        Annotation("Walking location", coordinate: coordinate) {
+                        Annotation("步行位置", coordinate: coordinate) {
                             Image(systemName: "figure.walk.circle.fill")
                                 .font(.title.weight(.semibold))
                                 .foregroundStyle(.white, .green)
@@ -106,7 +106,7 @@ struct HomeView: View {
                         ConnectionBadge(state: appModel.connectionState)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityHint("Opens device pairing setup")
+                    .accessibilityHint("打开设备配对设置")
 
                     Spacer()
 
@@ -123,7 +123,7 @@ struct HomeView: View {
                                 .frame(width: 44, height: 44)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Favourites and history")
+                        .accessibilityLabel("收藏与历史记录")
 
                         Button {
                             isShowingSettings = true
@@ -137,7 +137,7 @@ struct HomeView: View {
                                 .frame(width: 44, height: 44)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Settings")
+                        .accessibilityLabel("设置")
                     }
                 }
 
@@ -151,10 +151,10 @@ struct HomeView: View {
                                 .foregroundStyle(.blue)
 
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Pair this iPhone")
+                                Text("配对此 iPhone")
                                     .font(.subheadline.weight(.semibold))
                                     .foregroundStyle(.primary)
-                                Text("Required before location control")
+                                Text("控制位置前必须完成")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -187,7 +187,7 @@ struct HomeView: View {
                                     .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Return map to north")
+                            .accessibilityLabel("地图回到正北")
                             .transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
                         }
 
@@ -211,7 +211,7 @@ struct HomeView: View {
                             }
                             .buttonStyle(.plain)
                             .disabled(mapModel.isFindingRealLocation)
-                            .accessibilityLabel("Show my current location")
+                            .accessibilityLabel("显示我的当前位置")
                         }
                     }
                 }
@@ -555,7 +555,7 @@ struct HomeView: View {
             )
             guard let route else {
                 recoveredWalkError = walkingRoutePlanner.errorMessage
-                    ?? "The remaining walking route could not be prepared."
+                    ?? "无法准备剩余的步行路线。"
                 isPreparingRecoveredWalk = false
                 return
             }
@@ -593,17 +593,17 @@ private struct CompassRoseDial: View {
             Circle()
                 .strokeBorder(.primary.opacity(0.28), lineWidth: 0.8)
 
-            Text("N")
+            Text("北")
                 .foregroundStyle(.red)
                 .offset(y: -10.5)
 
-            Text("E")
+            Text("东")
                 .offset(x: 10.5)
 
-            Text("S")
+            Text("南")
                 .offset(y: 10.5)
 
-            Text("W")
+            Text("西")
                 .offset(x: -10.5)
 
             Circle()

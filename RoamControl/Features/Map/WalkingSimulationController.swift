@@ -12,9 +12,9 @@ enum WalkingPace: Double, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .relaxed: "Relaxed"
-        case .normal: "Normal"
-        case .brisk: "Brisk"
+        case .relaxed: "悠闲"
+        case .normal: "正常"
+        case .brisk: "快速"
         }
     }
 
@@ -87,15 +87,15 @@ final class WalkingSimulationController {
         self.destination = destination
         if let startCoordinate = routePoints.first?.coordinate {
             routeStart = LocationTarget(
-                name: "Route Start",
-                subtitle: "Starting point for \(destination.name)",
+                name: "路线起点",
+                subtitle: "前往 \(destination.name) 的起点",
                 latitude: startCoordinate.latitude,
                 longitude: startCoordinate.longitude
             )
         } else {
             routeStart = nil
         }
-        phase = routePoints.count >= 2 ? .idle : .failed("This walking route does not contain enough detail to simulate movement.")
+        phase = routePoints.count >= 2 ? .idle : .failed("此步行路线的细节不足，无法模拟移动。")
     }
 
     func prepareReturnTrip() -> LocationTarget? {
@@ -126,7 +126,7 @@ final class WalkingSimulationController {
             phase == .idle || isFailed
         else { return }
         guard case .paired = appModel.pairingStatus else {
-            phase = .failed("Pair this iPhone before starting a walking session.")
+            phase = .failed("请先配对此 iPhone，再开始步行会话。")
             return
         }
 
@@ -142,7 +142,7 @@ final class WalkingSimulationController {
         )
 
         if case .idle = appModel.deviceSession.phase, phase == .preparing {
-            phase = .failed("Roam Control could not start the walking session.")
+            phase = .failed("漫游控制无法启动步行会话。")
         }
     }
 
@@ -252,7 +252,7 @@ final class WalkingSimulationController {
                 )
 
                 guard let coordinate = self.coordinate(at: self.distanceTravelled) else {
-                    self.phase = .failed("Roam Control could not follow this walking route.")
+                    self.phase = .failed("漫游控制无法沿此步行路线移动。")
                     return
                 }
 
@@ -263,7 +263,7 @@ final class WalkingSimulationController {
                     : self.movementTarget(at: coordinate, destination: destination)
 
                 guard deviceSession.updateLocation(target) == .updated else {
-                    self.phase = .failed("The active location session ended before the walk finished.")
+                    self.phase = .failed("步行完成前，活动位置会话已结束。")
                     return
                 }
 
@@ -318,8 +318,8 @@ final class WalkingSimulationController {
         destination: LocationTarget
     ) -> LocationTarget {
         LocationTarget(
-            name: "Walking to \(destination.name)",
-            subtitle: "\(Int((progress * 100).rounded()))% complete",
+            name: "正在步行前往 \(destination.name)",
+            subtitle: "已完成 \(Int((progress * 100).rounded()))%",
             latitude: coordinate.latitude,
             longitude: coordinate.longitude
         )

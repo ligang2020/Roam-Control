@@ -31,7 +31,7 @@ struct SavedPlacesView: View {
                     if favourites.isEmpty {
                         EmptySavedPlacesRow(
                             symbol: "heart",
-                            message: "Tap the heart on any selected place to save it."
+                            message: "点击所选地点旁的爱心即可收藏。"
                         )
                     } else {
                         ForEach(favourites) { location in
@@ -46,13 +46,13 @@ struct SavedPlacesView: View {
                                 Button(role: .destructive) {
                                     onDeleteFavourite(location)
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label("删除", systemImage: "trash")
                                 }
 
                                 Button {
                                     beginRenaming(location)
                                 } label: {
-                                    Label("Rename", systemImage: "pencil")
+                                    Label("重命名", systemImage: "pencil")
                                 }
                                 .tint(.blue)
                             }
@@ -60,10 +60,10 @@ struct SavedPlacesView: View {
                     }
                 } header: {
                     HStack {
-                        Text("Favourites")
+                        Text("收藏")
                         Spacer()
                         if !favourites.isEmpty {
-                            Button("Clear") {
+                            Button("清除") {
                                 clearTarget = .favourites
                             }
                             .textCase(nil)
@@ -75,7 +75,7 @@ struct SavedPlacesView: View {
                     if history.isEmpty {
                         EmptySavedPlacesRow(
                             symbol: "clock",
-                            message: "Places you use will appear here."
+                            message: "你使用过的地点会显示在这里。"
                         )
                     } else {
                         ForEach(history) { location in
@@ -90,17 +90,17 @@ struct SavedPlacesView: View {
                                 Button(role: .destructive) {
                                     onDeleteHistory(location)
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label("删除", systemImage: "trash")
                                 }
                             }
                         }
                     }
                 } header: {
                     HStack {
-                        Text("History")
+                        Text("历史记录")
                         Spacer()
                         if !history.isEmpty {
-                            Button("Clear") {
+                            Button("清除") {
                                 clearTarget = .history
                             }
                                 .textCase(nil)
@@ -108,32 +108,32 @@ struct SavedPlacesView: View {
                     }
                 }
             }
-            .navigationTitle("Saved Places")
+            .navigationTitle("已保存地点")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("完成") { dismiss() }
                 }
             }
             .alert(
-                "Rename Favourite",
+                "重命名收藏",
                 isPresented: Binding(
                     get: { favouriteBeingRenamed != nil },
                     set: { if !$0 { favouriteBeingRenamed = nil } }
                 )
             ) {
-                TextField("Favourite name", text: $favouriteName)
-                Button("Cancel", role: .cancel) {
+                TextField("收藏名称", text: $favouriteName)
+                Button("取消", role: .cancel) {
                     favouriteBeingRenamed = nil
                 }
-                Button("Save") {
+                Button("保存") {
                     guard let favouriteBeingRenamed else { return }
                     onRenameFavourite(favouriteBeingRenamed, favouriteName)
                     self.favouriteBeingRenamed = nil
                 }
                 .disabled(favouriteName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             } message: {
-                Text("Give this saved place a name that is easy to recognise.")
+                Text("为这个已保存地点设置一个容易识别的名称。")
             }
             .confirmationDialog(
                 clearConfirmationTitle,
@@ -146,7 +146,7 @@ struct SavedPlacesView: View {
                 Button(clearConfirmationButton, role: .destructive) {
                     performClear()
                 }
-                Button("Cancel", role: .cancel) {
+                Button("取消", role: .cancel) {
                     clearTarget = nil
                 }
             } message: {
@@ -167,25 +167,25 @@ struct SavedPlacesView: View {
 
     private var clearConfirmationTitle: String {
         switch clearTarget {
-        case .favourites: "Clear all favourites?"
-        case .history: "Clear location history?"
-        case nil: "Clear saved places?"
+        case .favourites: "清除全部收藏？"
+        case .history: "清除位置历史记录？"
+        case nil: "清除已保存地点？"
         }
     }
 
     private var clearConfirmationButton: String {
         switch clearTarget {
-        case .favourites: "Clear Favourites"
-        case .history: "Clear History"
-        case nil: "Clear"
+        case .favourites: "清除收藏"
+        case .history: "清除历史记录"
+        case nil: "清除"
         }
     }
 
     private var clearConfirmationMessage: String {
         switch clearTarget {
-        case .favourites: "Every favourite will be removed. Your history will be kept."
-        case .history: "Every recently used location will be removed. Your favourites will be kept."
-        case nil: "This cannot be undone."
+        case .favourites: "所有收藏都会被移除，但历史记录会保留。"
+        case .history: "所有最近使用的位置都会被移除，但收藏会保留。"
+        case nil: "此操作无法撤销。"
         }
     }
 
@@ -234,7 +234,7 @@ private struct SavedPlaceRow: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(locationAccessibilityLabel)
-            .accessibilityHint("Selects this location")
+            .accessibilityHint("选择此位置")
 
             Button(action: onToggleFavourite) {
                 Image(systemName: isFavourite ? "heart.fill" : "heart")
@@ -242,7 +242,7 @@ private struct SavedPlaceRow: View {
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(isFavourite ? "Remove from favourites" : "Add to favourites")
+            .accessibilityLabel(isFavourite ? "从收藏中移除" : "添加到收藏")
         }
     }
 

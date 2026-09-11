@@ -32,14 +32,14 @@ struct WalkingRoutePreviewCard: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .shadow(color: .black.opacity(0.15), radius: 18, y: 8)
         .confirmationDialog(
-            "Stop walking and restore your real location?",
+            "停止步行并恢复真实位置？",
             isPresented: $isConfirmingStop,
             titleVisibility: .visible
         ) {
-            Button("Stop & Restore", role: .destructive, action: onStop)
-            Button("Keep Walking", role: .cancel) {}
+            Button("停止并恢复", role: .destructive, action: onStop)
+            Button("继续步行", role: .cancel) {}
         } message: {
-            Text("Your route progress will be reset.")
+            Text("路线进度将被重置。")
         }
     }
 
@@ -71,7 +71,7 @@ struct WalkingRoutePreviewCard: View {
                             .frame(width: 44, height: 44)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Close walking route")
+                    .accessibilityLabel("关闭步行路线")
                 }
             }
 
@@ -94,14 +94,14 @@ struct WalkingRoutePreviewCard: View {
     @ViewBuilder
     private var pacePicker: some View {
         if dynamicTypeSize.isAccessibilitySize {
-            Picker("Walking pace", selection: paceBinding) {
+            Picker("步行速度", selection: paceBinding) {
                 ForEach(WalkingPace.allCases) { pace in
                     Text(pace.title).tag(pace)
                 }
             }
             .pickerStyle(.menu)
         } else {
-            Picker("Walking pace", selection: paceBinding) {
+            Picker("步行速度", selection: paceBinding) {
                 ForEach(WalkingPace.allCases) { pace in
                     Text(pace.title).tag(pace)
                 }
@@ -113,17 +113,17 @@ struct WalkingRoutePreviewCard: View {
     @ViewBuilder
     private var routeMetrics: some View {
         let distance = RouteMetric(
-            title: showsProgress ? "Remaining" : "Distance",
+            title: showsProgress ? "剩余" : "距离",
             value: distanceText,
             symbol: "point.topleft.down.to.point.bottomright.curvepath"
         )
         let duration = RouteMetric(
-            title: simulation.phase == .arrived ? "Status" : "Walking",
+            title: simulation.phase == .arrived ? "状态" : "步行中",
             value: durationText,
             symbol: simulation.phase == .arrived ? "checkmark.circle" : "clock"
         )
         let arrival = RouteMetric(
-            title: "Arrive",
+            title: "到达",
             value: arrivalText,
             symbol: "flag.checkered"
         )
@@ -148,7 +148,7 @@ struct WalkingRoutePreviewCard: View {
         switch simulation.phase {
         case .idle:
             Button(action: onStart) {
-                Label("Start Walking", systemImage: "figure.walk.motion")
+                Label("开始步行", systemImage: "figure.walk.motion")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -158,7 +158,7 @@ struct WalkingRoutePreviewCard: View {
         case .preparing:
             HStack(spacing: 10) {
                 ProgressView()
-                Text("Starting walking session…")
+                Text("正在启动步行会话…")
                     .font(.subheadline.weight(.medium))
             }
             .frame(maxWidth: .infinity)
@@ -180,7 +180,7 @@ struct WalkingRoutePreviewCard: View {
 
         case .arrived:
             Button(action: onWalkBack) {
-                Label("Walk Route Back", systemImage: "arrow.uturn.backward")
+                Label("沿路线返回", systemImage: "arrow.uturn.backward")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -203,14 +203,14 @@ struct WalkingRoutePreviewCard: View {
         case .stopping:
             HStack(spacing: 10) {
                 ProgressView()
-                Text("Restoring real location…")
+                Text("正在恢复真实位置…")
                     .font(.subheadline.weight(.medium))
             }
             .frame(maxWidth: .infinity)
 
         case .failed:
             Button(action: onStart) {
-                Label("Try Again", systemImage: "arrow.clockwise")
+                Label("重试", systemImage: "arrow.clockwise")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -222,7 +222,7 @@ struct WalkingRoutePreviewCard: View {
     private var pauseButton: some View {
                 Button(action: onTogglePause) {
                     Label(
-                        simulation.phase == .paused ? "Resume" : "Pause",
+                        simulation.phase == .paused ? "继续" : "暂停",
                         systemImage: simulation.phase == .paused ? "play.fill" : "pause.fill"
                     )
                     .frame(maxWidth: .infinity)
@@ -237,7 +237,7 @@ struct WalkingRoutePreviewCard: View {
                     isConfirmingStop = true
                 } label: {
             if showTitle {
-                Label("Stop & Restore", systemImage: "stop.fill")
+                Label("停止并恢复", systemImage: "stop.fill")
                     .frame(maxWidth: .infinity)
             } else {
                 Image(systemName: "stop.fill")
@@ -246,12 +246,12 @@ struct WalkingRoutePreviewCard: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
-                .accessibilityLabel("Stop walking and restore real location")
+                .accessibilityLabel("停止步行并恢复真实位置")
     }
 
     private var newLocationButton: some View {
         Button(action: onChooseNewLocation) {
-            Label("New Location", systemImage: "mappin.and.ellipse")
+            Label("新位置", systemImage: "mappin.and.ellipse")
                     .frame(maxWidth: .infinity)
             }
         .buttonStyle(.bordered)
@@ -264,7 +264,7 @@ struct WalkingRoutePreviewCard: View {
                     isConfirmingStop = true
                 } label: {
             if showTitle {
-                Label("Stop & Restore", systemImage: "location.slash.fill")
+                Label("停止并恢复", systemImage: "location.slash.fill")
                     .frame(maxWidth: .infinity)
             } else {
                 Image(systemName: "location.slash.fill")
@@ -273,7 +273,7 @@ struct WalkingRoutePreviewCard: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
-                .accessibilityLabel("Stop and restore real location")
+                .accessibilityLabel("停止并恢复真实位置")
     }
 
     @ViewBuilder
@@ -281,36 +281,36 @@ struct WalkingRoutePreviewCard: View {
         switch simulation.phase {
         case .idle:
             Text(isPaired
-                 ? "Your location will move along this route at the selected pace."
-                 : "Pair this iPhone before starting a walking session.")
+                 ? "你的位置将以所选速度沿此路线移动。"
+                 : "请先配对此 iPhone，再开始步行会话。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .fixedSize(horizontal: false, vertical: true)
 
         case .preparing:
-            Text("Follow the mobile-data guidance if it appears.")
+            Text("如果出现移动数据提示，请按提示操作。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .fixedSize(horizontal: false, vertical: true)
 
         case .walking:
-            Text("Keep Roam Control running. You can use other apps while the walk continues.")
+            Text("请保持漫游控制运行。步行继续时可以使用其他应用。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .fixedSize(horizontal: false, vertical: true)
 
         case .paused:
-            Text("Your spoofed location is being held here until you resume.")
+            Text("模拟位置会保持在此处，直到你继续操作。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .fixedSize(horizontal: false, vertical: true)
 
         case .arrived:
-            Text("The destination remains active until you stop and restore your real location.")
+            Text("目的地会一直保持活动状态，直到你停止并恢复真实位置。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -357,26 +357,26 @@ struct WalkingRoutePreviewCard: View {
 
     private var phaseTitle: String {
         switch simulation.phase {
-        case .idle: "Walking route"
-        case .preparing: "Preparing walk"
-        case .walking: "Walking"
-        case .paused: "Walk paused"
-        case .arrived: "Arrived"
-        case .stopping: "Ending walk"
-        case .failed: "Walking unavailable"
+        case .idle: "步行路线"
+        case .preparing: "准备步行"
+        case .walking: "步行中"
+        case .paused: "步行已暂停"
+        case .arrived: "已到达"
+        case .stopping: "正在结束步行"
+        case .failed: "步行不可用"
         }
     }
 
     private var phaseSubtitle: String {
         switch simulation.phase {
         case .idle, .preparing, .failed:
-            "Current Location to \(destination.name)"
+            "当前位置到 \(destination.name)"
         case .walking, .paused:
-            "Heading to \(destination.name) · \(Int((simulation.progress * 100).rounded()))%"
+            "正在前往 \(destination.name) · \(Int((simulation.progress * 100).rounded()))%"
         case .arrived:
-            "Location active at \(destination.name)"
+            "位置控制于 \(destination.name) 已启动"
         case .stopping:
-            "Restoring this iPhone's real location"
+            "正在恢复此 iPhone 的真实位置"
         }
     }
 
@@ -423,17 +423,17 @@ struct WalkingRoutePreviewCard: View {
         let metresPerMile = 1_609.344
         guard distance >= metresPerMile else {
             let yards = max(0, distance / 0.9144)
-            return "\(Int(yards.rounded())) yd"
+            return "\(Int(yards.rounded())) 码"
         }
 
         let miles = distance / metresPerMile
         return miles.formatted(
             .number.precision(.fractionLength(miles < 10 ? 1 : 0))
-        ) + " mi"
+        ) + " 英里"
     }
 
     private var durationText: String {
-        guard simulation.phase != .arrived else { return "Complete" }
+        guard simulation.phase != .arrived else { return "完成" }
         let duration = simulation.totalDistance > 0
             ? simulation.remainingDuration
             : route.expectedTravelTime
@@ -441,7 +441,7 @@ struct WalkingRoutePreviewCard: View {
     }
 
     private var arrivalText: String {
-        guard simulation.phase != .arrived else { return "Now" }
+        guard simulation.phase != .arrived else { return "现在" }
         let duration = simulation.totalDistance > 0
             ? simulation.remainingDuration
             : route.expectedTravelTime
@@ -452,13 +452,13 @@ struct WalkingRoutePreviewCard: View {
 
     private func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = max(1, Int((duration / 60).rounded()))
-        guard minutes >= 60 else { return "\(minutes) min" }
+        guard minutes >= 60 else { return "\(minutes) 分钟" }
 
         let hours = minutes / 60
         let remainingMinutes = minutes % 60
         return remainingMinutes == 0
-            ? "\(hours) hr"
-            : "\(hours) hr \(remainingMinutes) min"
+            ? "\(hours) 小时"
+            : "\(hours) 小时 \(remainingMinutes) 分钟"
     }
 }
 

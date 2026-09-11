@@ -186,17 +186,17 @@ enum PairingServiceError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notAPropertyList:
-            "That file is not a valid property list."
+            "该文件不是有效的属性列表。"
         case .notRPPairing:
-            "That is not a valid RPPairing file."
+            "该文件不是有效的 RPPairing 文件。"
         case .keyMismatch:
-            "The pairing file's public and private keys do not match."
+            "配对文件中的公钥和私钥不匹配。"
         case .invalidHostIdentity:
-            "The generated pairing identity was not valid."
+            "生成的配对身份无效。"
         case .corruptStoredRecord:
-            "The stored pairing record could not be read."
+            "无法读取已存储的配对记录。"
         case .keychain(let status):
-            "The pairing record could not be stored securely (Keychain error \(status))."
+            "无法安全存储配对记录（钥匙串错误 \(status)）。"
         }
     }
 }

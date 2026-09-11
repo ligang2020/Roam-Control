@@ -31,23 +31,23 @@ final class ConnectionDiagnosticsCoordinator: NSObject {
         cancel(resetState: false)
 
         guard let pairingRecord else {
-            finish(.failed("This iPhone is not paired. Open Pairing & Connection and pair it first."))
+            finish(.failed("此 iPhone 尚未配对。请打开“配对与连接”并先完成配对。"))
             return
         }
 
         switch sessionPhase {
         case .active:
-            finish(.passed("The secure location session is active and responding."))
+            finish(.passed("安全位置会话正在运行并正常响应。"))
             return
         case .openingLocalDevVPN, .discovering, .connecting, .stopping:
-            finish(.failed("Roam Control is already changing the connection. Let it finish, then run the check again."))
+            finish(.failed("漫游控制已在更改连接。请等待完成后再运行检查。"))
             return
         case .idle, .failed:
             break
         }
 
 #if targetEnvironment(simulator)
-        finish(.failed("LocalDevVPN reachability can only be checked on a physical iPhone."))
+        finish(.failed("只有实体 iPhone 才能检查 LocalDevVPN 的可访问性。"))
 #else
         self.pairingRecord = pairingRecord
         sawNonMatchingService = false
@@ -61,11 +61,11 @@ final class ConnectionDiagnosticsCoordinator: NSObject {
 
             if self.sawNonMatchingService {
                 self.finish(.failed(
-                    "LocalDevVPN is visible, but its device announcement does not match the paired iPhone. Toggle LocalDevVPN off and on, then try again."
+                    "可以发现 LocalDevVPN，但其设备公告与已配对 iPhone 不匹配。请关闭再打开 LocalDevVPN，然后重试。"
                 ))
             } else {
                 self.finish(.failed(
-                    "This iPhone was not reachable through LocalDevVPN. Check that the tunnel is connected. On mobile data, switch data off briefly and run the check again."
+                    "无法通过 LocalDevVPN 访问此 iPhone。请检查隧道是否已连接。使用移动数据时，请短暂关闭数据后再运行检查。"
                 ))
             }
         }
@@ -145,7 +145,7 @@ final class ConnectionDiagnosticsCoordinator: NSObject {
         }
 
         if matchesPairedDevice {
-            finish(.passed("The pairing record is valid and this iPhone is reachable through LocalDevVPN."))
+            finish(.passed("配对记录有效，并且可以通过 LocalDevVPN 访问此 iPhone。"))
         } else {
             sawNonMatchingService = true
         }
@@ -174,7 +174,7 @@ extension ConnectionDiagnosticsCoordinator: NetServiceBrowserDelegate, NetServic
         didNotSearch errorDict: [String: NSNumber]
     ) {
         MainActor.assumeIsolated {
-            finish(.failed("Local Network access is unavailable. Allow it in iPhone Settings, then try again."))
+            finish(.failed("本地网络权限不可用。请在 iPhone“设置”中允许访问，然后重试。"))
         }
     }
 

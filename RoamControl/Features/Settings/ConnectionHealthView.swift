@@ -8,9 +8,9 @@ struct ConnectionHealthView: View {
 
     var body: some View {
         List {
-            Section("Connection Health") {
+            Section("连接健康度") {
                 healthRow(
-                    title: "Pairing",
+                    title: "配对",
                     value: pairingValue,
                     symbol: pairingSymbol,
                     color: pairingColor
@@ -24,19 +24,19 @@ struct ConnectionHealthView: View {
                 )
 
                 healthRow(
-                    title: "Location Session",
+                    title: "位置会话",
                     value: sessionValue,
                     symbol: sessionSymbol,
                     color: sessionColor
                 )
             }
 
-            Section("Current Location") {
-                LabeledContent("Place", value: activeTarget?.name ?? "None")
-                LabeledContent("Coordinates", value: coordinatesValue)
+            Section("当前位置") {
+                LabeledContent("地点", value: activeTarget?.name ?? "无")
+                LabeledContent("坐标", value: coordinatesValue)
 
                 if let activeTarget, !activeTarget.subtitle.isEmpty {
-                    LabeledContent("Area", value: activeTarget.subtitle)
+                    LabeledContent("区域", value: activeTarget.subtitle)
                 }
             }
 
@@ -45,7 +45,7 @@ struct ConnectionHealthView: View {
                     Task { await runConnectionCheck() }
                 } label: {
                     HStack {
-                        Label("Run Connection Check", systemImage: "stethoscope")
+                        Label("运行连接检查", systemImage: "stethoscope")
                         Spacer()
                         if diagnostics.state == .running {
                             ProgressView()
@@ -62,43 +62,43 @@ struct ConnectionHealthView: View {
 
                 if let lastChecked = diagnostics.lastChecked {
                     LabeledContent(
-                        "Last checked",
+                        "上次检查",
                         value: lastChecked.formatted(date: .omitted, time: .shortened)
                     )
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }
             } header: {
-                Text("Connection Check")
+                Text("连接检查")
             } footer: {
-                Text("This checks the saved pairing record and whether the paired iPhone is visible through LocalDevVPN. It never starts, changes, or stops your location.")
+                Text("此检查会验证已保存的配对记录，以及通过 LocalDevVPN 是否能发现已配对的 iPhone。它不会启动、更改或停止位置控制。")
             }
 
             Section {
                 ShareLink(
                     item: diagnosticsText,
-                    subject: Text("Roam Control Diagnostics")
+                    subject: Text("漫游控制诊断")
                 ) {
-                    Label("Share Diagnostics", systemImage: "square.and.arrow.up")
+                    Label("分享诊断信息", systemImage: "square.and.arrow.up")
                 }
             } footer: {
-                Text("Choose where to send or save the report using the iOS share sheet. It never includes pairing keys or PINs.")
+                Text("使用 iOS 分享面板选择发送或保存报告的位置。报告绝不包含配对密钥或 PIN 码。")
             }
 
-            Section("Help") {
+            Section("帮助") {
                 Button {
                     isShowingDeviceSetup = true
                 } label: {
-                    Label("Pairing & Connection", systemImage: "iphone.and.arrow.forward")
+                    Label("配对与连接", systemImage: "iphone.and.arrow.forward")
                 }
                 .foregroundStyle(.primary)
 
                 Link(destination: appModel.localDevVPNInstallURL) {
-                    Label("Open LocalDevVPN in App Store", systemImage: "arrow.up.right.square")
+                    Label("在 App Store 中打开 LocalDevVPN", systemImage: "arrow.up.right.square")
                 }
             }
         }
-        .navigationTitle("Connection Health")
+        .navigationTitle("连接健康度")
         .navigationBarTitleDisplayMode(.inline)
         .onDisappear {
             diagnostics.cancel()
@@ -117,17 +117,17 @@ struct ConnectionHealthView: View {
     }
 
     private var coordinatesValue: String {
-        guard let activeTarget else { return "None" }
+        guard let activeTarget else { return "无" }
         return String(format: "%.5f, %.5f", activeTarget.latitude, activeTarget.longitude)
     }
 
     private var pairingValue: String {
         switch appModel.pairingStatus {
-        case .checking: "Checking"
-        case .importing: "Importing"
-        case .notPaired: "Not paired"
-        case .paired: "Ready"
-        case .failed: "Problem"
+        case .checking: "检查中"
+        case .importing: "导入中"
+        case .notPaired: "未配对"
+        case .paired: "就绪"
+        case .failed: "有问题"
         }
     }
 
@@ -152,11 +152,11 @@ struct ConnectionHealthView: View {
     private var localDevVPNValue: String {
         switch diagnostics.state {
         case .notRun:
-            if case .active = appModel.deviceSession.phase { return "Connected" }
-            return "Not checked"
-        case .running: return "Checking"
-        case .passed: return "Reachable"
-        case .failed: return "Not reachable"
+            if case .active = appModel.deviceSession.phase { return "已连接" }
+            return "未检查"
+        case .running: return "检查中"
+        case .passed: return "可访问"
+        case .failed: return "无法访问"
         }
     }
 
@@ -184,13 +184,13 @@ struct ConnectionHealthView: View {
 
     private var sessionValue: String {
         switch appModel.deviceSession.phase {
-        case .idle: "Inactive"
-        case .openingLocalDevVPN: "Opening LocalDevVPN"
-        case .discovering: "Finding this iPhone"
-        case .connecting: "Connecting"
-        case .active: "Active"
-        case .stopping: "Stopping"
-        case .failed: "Failed"
+        case .idle: "未活动"
+        case .openingLocalDevVPN: "正在打开 LocalDevVPN"
+        case .discovering: "正在查找此 iPhone"
+        case .connecting: "正在连接"
+        case .active: "活动中"
+        case .stopping: "正在停止"
+        case .failed: "失败"
         }
     }
 
@@ -285,33 +285,33 @@ struct ConnectionHealthView: View {
     }
 
     private var diagnosticsText: String {
-        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
-        let checked = diagnostics.lastChecked?.formatted(date: .numeric, time: .standard) ?? "Not run"
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "未知"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "未知"
+        let checked = diagnostics.lastChecked?.formatted(date: .numeric, time: .standard) ?? "未运行"
 
         return """
-        Roam Control Diagnostics
-        Generated: \(Date().formatted(date: .numeric, time: .standard))
-        App: \(appVersion) (\(build))
-        iOS: \(UIDevice.current.systemVersion)
-        Pairing: \(pairingValue)
-        LocalDevVPN: \(localDevVPNValue)
-        Session: \(sessionValue)
-        Active place: \(activeTarget?.name ?? "None")
-        Coordinates: \(coordinatesValue)
-        Last connection check: \(checked)
-        Connection check result: \(diagnosticResultText)
-        Appearance: \(appModel.appearance.title)
-        Map style: \(appModel.mapDisplayStyle.title)
+        漫游控制诊断报告
+        生成时间：\(Date().formatted(date: .numeric, time: .standard))
+        应用：\(appVersion)（\(build)）
+        iOS：\(UIDevice.current.systemVersion)
+        配对：\(pairingValue)
+        LocalDevVPN：\(localDevVPNValue)
+        会话：\(sessionValue)
+        活动地点：\(activeTarget?.name ?? "无")
+        坐标：\(coordinatesValue)
+        上次连接检查：\(checked)
+        连接检查结果：\(diagnosticResultText)
+        外观：\(appModel.appearance.title)
+        地图样式：\(appModel.mapDisplayStyle.title)
         """
     }
 
     private var diagnosticResultText: String {
         switch diagnostics.state {
-        case .notRun: "Not run"
-        case .running: "Running"
-        case .passed(let message): "Passed — \(message)"
-        case .failed(let message): "Failed — \(message)"
+        case .notRun: "未运行"
+        case .running: "运行中"
+        case .passed(let message): "通过 — \(message)"
+        case .failed(let message): "失败 — \(message)"
         }
     }
 }

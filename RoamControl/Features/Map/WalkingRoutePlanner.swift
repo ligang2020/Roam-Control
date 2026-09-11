@@ -50,7 +50,7 @@ final class WalkingRoutePlanner {
             let response = try await calculation.calculate()
             guard directions === calculation else { return nil }
             guard let preferredRoute = response.routes.first else {
-                errorMessage = "No walking route was found for this destination."
+                errorMessage = "未找到前往此目的地的步行路线。"
                 return nil
             }
 
@@ -60,7 +60,7 @@ final class WalkingRoutePlanner {
             return nil
         } catch {
             guard directions === calculation else { return nil }
-            errorMessage = "Walking directions are unavailable. Check Location access and your internet connection, then try again."
+            errorMessage = "步行路线不可用。请检查定位权限和网络连接，然后重试。"
             return nil
         }
     }

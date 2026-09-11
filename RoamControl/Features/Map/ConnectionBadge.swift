@@ -22,16 +22,16 @@ struct ConnectionBadge: View {
         .background(.regularMaterial, in: Capsule())
         .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Connection status: \(label)")
+        .accessibilityLabel("连接状态：\(label)")
     }
 
     private var label: String {
         switch state {
-        case .notConfigured: "Set up iPhone"
-        case .ready: "Ready"
-        case .connecting: "Connecting…"
-        case .active: "Session active"
-        case .failed: "Connection error"
+        case .notConfigured: "设置 iPhone"
+        case .ready: "就绪"
+        case .connecting: "正在连接…"
+        case .active: "会话运行中"
+        case .failed: "连接错误"
         }
     }
 

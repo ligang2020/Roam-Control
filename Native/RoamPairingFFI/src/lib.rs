@@ -20,8 +20,8 @@ use tokio::time::{Instant, sleep, timeout};
 
 const DEFAULT_HOST_NAME: &str = "Roam Control";
 const DEFAULT_HOST_MODEL: &str = "Mac17,7";
-const CANCELLED_ERROR: &str = "Pairing was cancelled.";
-const LOCATION_CANCELLED_ERROR: &str = "The location session was stopped.";
+const CANCELLED_ERROR: &str = "配对已取消。";
+const LOCATION_CANCELLED_ERROR: &str = "位置会话已停止。";
 const SESSION_TIMEOUT: Duration = Duration::from_secs(15);
 
 pub type ReadyCallback = Option<
@@ -66,7 +66,7 @@ impl LocationCoordinates {
                 longitude,
             })
         } else {
-            Err("That location is outside the valid coordinate range.".to_string())
+            Err("该位置超出有效坐标范围。".to_string())
         }
     }
 }
@@ -168,7 +168,7 @@ pub unsafe extern "C" fn rc_remote_pairing_session_run(
             .worker_threads(2)
             .enable_all()
             .build()
-            .map_err(|_| "Roam Control could not start its pairing engine.".to_string())?;
+            .map_err(|_| "漫游控制无法启动配对引擎。".to_string())?;
 
         runtime.block_on(run_pairing(host_name, host_model, callbacks, cancellation))
     }));
@@ -185,7 +185,7 @@ pub unsafe extern "C" fn rc_remote_pairing_session_run(
         Err(_) => {
             unsafe {
                 (*result).error_message =
-                    owned_c_string("The pairing engine stopped unexpectedly.");
+                    owned_c_string("配对引擎意外停止。");
             }
             1
         }
@@ -350,7 +350,7 @@ pub unsafe extern "C" fn rc_location_session_run(
             .worker_threads(3)
             .enable_all()
             .build()
-            .map_err(|_| "Roam Control could not start its device session.".to_string())?;
+            .map_err(|_| "漫游控制无法启动设备会话。".to_string())?;
 
         runtime.block_on(run_location_session(
             pairing_record,
@@ -374,7 +374,7 @@ pub unsafe extern "C" fn rc_location_session_run(
         Err(_) => {
             unsafe {
                 (*result).error_message =
-                    owned_c_string("The location session stopped unexpectedly.");
+                    owned_c_string("位置会话意外停止。");
             }
             1
         }
@@ -411,10 +411,10 @@ async fn run_pairing(
 
     let listener = TcpListener::bind(SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0))
         .await
-        .map_err(|_| "Roam Control could not open a local pairing connection.".to_string())?;
+        .map_err(|_| "漫游控制无法打开本地配对连接。".to_string())?;
     let port = listener
         .local_addr()
-        .map_err(|_| "Roam Control could not determine its pairing port.".to_string())?
+        .map_err(|_| "漫游控制无法确定配对端口。".to_string())?
         .port();
 
     let mut pairing_record = RpPairingFile::generate(&host_name);
@@ -426,7 +426,7 @@ async fn run_pairing(
 
     let (stream, _) = tokio::select! {
         accepted = listener.accept() => {
-            accepted.map_err(|_| "The iPhone could not connect to Roam Control.".to_string())?
+            accepted.map_err(|_| "此 iPhone 无法连接到漫游控制。".to_string())?
         }
         _ = wait_for_cancellation(Arc::clone(&cancellation)) => {
             return Err(CANCELLED_ERROR.to_string());
@@ -476,108 +476,108 @@ async fn run_location_session(
 ) -> Result<(), String> {
     let mut applied_coordinates = current_coordinates(&coordinates)?;
     if remote_pairing_port == 0 || service_identifier.is_empty() || auth_tag.is_empty() {
-        return Err("Roam Control could not identify this iPhone's pairing service.".to_string());
+        return Err("漫游控制无法识别此 iPhone 的配对服务。".to_string());
     }
 
     let mut pairing_file = RpPairingFile::from_bytes(&pairing_record_bytes)
-        .map_err(|_| "The saved pairing record could not be read.".to_string())?;
+        .map_err(|_| "无法读取已保存的配对记录。".to_string())?;
     let alt_irk = pairing_file
         .alt_irk()
-        .ok_or_else(|| "The saved pairing record is missing its device identity.".to_string())?;
+        .ok_or_else(|| "已保存的配对记录缺少设备身份信息。".to_string())?;
     if !PeerDevice::validate_auth_tag(alt_irk, &service_identifier, &auth_tag) {
-        return Err("The discovered device did not match the paired iPhone.".to_string());
+        return Err("发现的设备与已配对的 iPhone 不匹配。".to_string());
     }
     check_location_cancellation(&cancellation)?;
 
     let peer_ip: IpAddr = peer_address
         .parse()
-        .map_err(|_| "LocalDevVPN returned an invalid device address.".to_string())?;
+        .map_err(|_| "LocalDevVPN 返回了无效的设备地址。".to_string())?;
     let pairing_address = SocketAddr::new(peer_ip, remote_pairing_port);
     let stream = timeout(SESSION_TIMEOUT, TcpStream::connect(pairing_address))
         .await
         .map_err(|_| {
-            "LocalDevVPN did not make the iPhone connection available in time.".to_string()
+            "LocalDevVPN 未能及时提供 iPhone 连接。".to_string()
         })?
-        .map_err(|_| "Roam Control could not reach the iPhone through LocalDevVPN.".to_string())?;
+        .map_err(|_| "漫游控制无法通过 LocalDevVPN 访问此 iPhone。".to_string())?;
 
     let socket = RpPairingSocket::new(stream);
     let mut remote_pairing = RemotePairingClient::new(socket, DEFAULT_HOST_NAME);
     timeout(SESSION_TIMEOUT, remote_pairing.attempt_pair_verify())
         .await
-        .map_err(|_| "The paired iPhone did not respond in time.".to_string())?
-        .map_err(|_| "The iPhone rejected the saved pairing session.".to_string())?;
+        .map_err(|_| "已配对的 iPhone 未及时响应。".to_string())?
+        .map_err(|_| "iPhone 拒绝了已保存的配对会话。".to_string())?;
     timeout(
         SESSION_TIMEOUT,
         remote_pairing.validate_pairing(&mut pairing_file),
     )
     .await
-    .map_err(|_| "Pairing verification took too long.".to_string())?
+    .map_err(|_| "配对验证耗时过长。".to_string())?
     .map_err(|_| {
-        "The saved pairing is no longer valid. Reset Device Setup and pair again.".to_string()
+        "已保存的配对已失效。请重置设备设置并重新配对。".to_string()
     })?;
     check_location_cancellation(&cancellation)?;
 
     let tunnel_port = timeout(SESSION_TIMEOUT, remote_pairing.create_tcp_listener())
         .await
-        .map_err(|_| "The iPhone did not create its secure tunnel in time.".to_string())?
-        .map_err(|_| "The iPhone could not create its secure tunnel.".to_string())?;
+        .map_err(|_| "iPhone 未能及时创建安全隧道。".to_string())?
+        .map_err(|_| "iPhone 无法创建安全隧道。".to_string())?;
     let tunnel_stream = timeout(
         SESSION_TIMEOUT,
         TcpStream::connect(SocketAddr::new(peer_ip, tunnel_port)),
     )
     .await
-    .map_err(|_| "LocalDevVPN did not open the secure tunnel in time.".to_string())?
-    .map_err(|_| "Roam Control could not open the secure device tunnel.".to_string())?;
+    .map_err(|_| "LocalDevVPN 未能及时打开安全隧道。".to_string())?
+    .map_err(|_| "漫游控制无法打开安全设备隧道。".to_string())?;
     let tunnel = timeout(
         SESSION_TIMEOUT,
         connect_tls_psk_tunnel_native(tunnel_stream, remote_pairing.encryption_key()),
     )
     .await
-    .map_err(|_| "The encrypted device tunnel took too long to start.".to_string())?
-    .map_err(|_| "Roam Control could not secure the device tunnel.".to_string())?;
+    .map_err(|_| "加密设备隧道启动耗时过长。".to_string())?
+    .map_err(|_| "漫游控制无法建立安全设备隧道。".to_string())?;
 
     let client_ip: IpAddr = tunnel
         .info
         .client_address
         .parse()
-        .map_err(|_| "The iPhone returned an invalid tunnel address.".to_string())?;
+        .map_err(|_| "iPhone 返回了无效的隧道地址。".to_string())?;
     let server_ip: IpAddr = tunnel
         .info
         .server_address
         .parse()
-        .map_err(|_| "The iPhone returned an invalid service address.".to_string())?;
+        .map_err(|_| "iPhone 返回了无效的服务地址。".to_string())?;
     let rsd_port = tunnel.info.server_rsd_port;
     let adapter = tcp::adapter::Adapter::new(Box::new(tunnel.into_inner()), client_ip, server_ip);
     let mut handle = adapter.to_async_handle();
 
     let rsd_stream = timeout(SESSION_TIMEOUT, handle.connect(rsd_port))
         .await
-        .map_err(|_| "The iPhone's service directory took too long to respond.".to_string())?
-        .map_err(|_| "Roam Control could not open the iPhone's service directory.".to_string())?;
+        .map_err(|_| "iPhone 的服务目录响应耗时过长。".to_string())?
+        .map_err(|_| "漫游控制无法打开 iPhone 的服务目录。".to_string())?;
     let mut handshake = timeout(SESSION_TIMEOUT, RsdHandshake::new(rsd_stream))
         .await
-        .map_err(|_| "The iPhone's service handshake took too long.".to_string())?
-        .map_err(|_| "Roam Control could not complete the iPhone service handshake.".to_string())?;
+        .map_err(|_| "iPhone 的服务握手耗时过长。".to_string())?
+        .map_err(|_| "漫游控制无法完成 iPhone 服务握手。".to_string())?;
     let mut dvt = timeout(
         SESSION_TIMEOUT,
         RemoteServerClient::connect_rsd(&mut handle, &mut handshake),
     )
     .await
-    .map_err(|_| "The location service took too long to open.".to_string())?
-    .map_err(|_| "The iPhone did not make its location service available.".to_string())?;
+    .map_err(|_| "位置服务打开耗时过长。".to_string())?
+    .map_err(|_| "iPhone 未提供位置服务。".to_string())?;
     timeout(SESSION_TIMEOUT, dvt.read_message(0))
         .await
-        .map_err(|_| "The location service did not become ready in time.".to_string())?
-        .map_err(|_| "The iPhone's location service did not become ready.".to_string())?;
+        .map_err(|_| "位置服务未能及时就绪。".to_string())?
+        .map_err(|_| "iPhone 的位置服务未能就绪。".to_string())?;
     let mut location = timeout(SESSION_TIMEOUT, LocationSimulationClient::new(&mut dvt))
         .await
-        .map_err(|_| "The location controls took too long to open.".to_string())?
-        .map_err(|_| "Roam Control could not open the iPhone's location controls.".to_string())?;
+        .map_err(|_| "位置控制打开耗时过长。".to_string())?
+        .map_err(|_| "漫游控制无法打开 iPhone 的位置控制。".to_string())?;
 
     location
         .set(applied_coordinates.latitude, applied_coordinates.longitude)
         .await
-        .map_err(|_| "The iPhone did not accept the selected location.".to_string())?;
+        .map_err(|_| "iPhone 未接受所选位置。".to_string())?;
     if let Some(callback) = started_callback {
         callback(callback_context as *mut c_void);
     }
@@ -595,7 +595,7 @@ async fn run_location_session(
             location
                 .set(latest_coordinates.latitude, latest_coordinates.longitude)
                 .await
-                .map_err(|_| "The iPhone ended the active location session.".to_string())?;
+                .map_err(|_| "iPhone 结束了活动位置会话。".to_string())?;
             applied_coordinates = latest_coordinates;
             last_refresh = Instant::now();
         }
@@ -610,7 +610,7 @@ fn current_coordinates(
 ) -> Result<LocationCoordinates, String> {
     let current = coordinates
         .lock()
-        .map_err(|_| "Roam Control could not update the active location.".to_string())?;
+        .map_err(|_| "漫游控制无法更新活动位置。".to_string())?;
     LocationCoordinates::validated(current.latitude, current.longitude)
 }
 
@@ -671,15 +671,15 @@ fn publish_ready_callback(
 fn friendly_pairing_error(raw: &str) -> String {
     let lowercased = raw.to_lowercase();
     if lowercased.contains("srp") || lowercased.contains("auth") {
-        "The code was not accepted. Start pairing again and enter the new code.".to_string()
+        "代码未被接受。请重新开始配对并输入新代码。".to_string()
     } else if lowercased.contains("connection")
         || lowercased.contains("broken pipe")
         || lowercased.contains("unexpected eof")
     {
-        "The iPhone ended the pairing connection. Start pairing again when you are ready."
+        "iPhone 结束了配对连接。准备好后请重新开始配对。"
             .to_string()
     } else {
-        "The iPhone could not finish pairing. Please try again.".to_string()
+        "iPhone 无法完成配对，请重试。".to_string()
     }
 }
 

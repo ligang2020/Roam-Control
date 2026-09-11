@@ -171,10 +171,10 @@ final class UsageAnalyticsService {
     private static var safePayload: [String: String] {
         let version = Bundle.main.object(
             forInfoDictionaryKey: "CFBundleShortVersionString"
-        ) as? String ?? "Unknown"
+        ) as? String ?? "未知"
         let build = Bundle.main.object(
             forInfoDictionaryKey: "CFBundleVersion"
-        ) as? String ?? "Unknown"
+        ) as? String ?? "未知"
 
         return [
             "RoamControl.appVersion": version,

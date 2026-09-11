@@ -67,7 +67,7 @@ final class OnDevicePairingCoordinator {
 
     func start(storeRecord: @escaping RecordStore) {
         guard isAvailableOnThisDevice else {
-            phase = .failed("On-device pairing needs your physical iPhone.")
+            phase = .failed("设备端配对需要使用实体 iPhone。")
             return
         }
         guard !isRunning else { return }
@@ -95,7 +95,7 @@ final class OnDevicePairingCoordinator {
         guard wasRegistered else {
             recordStore = nil
             phase = .failed(
-                "iOS could not register the secure pairing task. Close Roam Control, reopen it, and try again."
+                "iOS 无法注册安全配对任务。请关闭漫游控制，重新打开后再试。"
             )
             return
         }
@@ -104,8 +104,8 @@ final class OnDevicePairingCoordinator {
 
         let request = BGContinuedProcessingTaskRequest(
             identifier: identifier,
-            title: "Roam Control",
-            subtitle: "Preparing secure pairing…"
+            title: "漫游控制",
+            subtitle: "正在准备安全配对…"
         )
         request.strategy = .fail
 
@@ -116,7 +116,7 @@ final class OnDevicePairingCoordinator {
                 submittedTaskIdentifier = nil
                 recordStore = nil
                 phase = .failed(
-                    "iOS could not keep pairing active in the background. Keep Roam Control open and try again."
+                    "iOS 无法在后台保持配对活动。请保持漫游控制打开后重试。"
                 )
             }
         }
@@ -168,7 +168,7 @@ final class OnDevicePairingCoordinator {
 
     private func runNativePairing() {
         guard let session = rc_remote_pairing_session_create() else {
-            fail("Roam Control could not start its pairing engine.")
+            fail("漫游控制无法启动配对引擎。")
             return
         }
 
@@ -224,8 +224,8 @@ final class OnDevicePairingCoordinator {
         phase = .showingPIN(pin)
         backgroundTask?.progress.completedUnitCount = 55
         backgroundTask?.updateTitle(
-            "Roam Control pairing code",
-            subtitle: "Enter \(pin) in Settings"
+            "漫游控制配对代码",
+            subtitle: "在“设置”中输入 \(pin)"
         )
     }
 
@@ -234,15 +234,15 @@ final class OnDevicePairingCoordinator {
         phase = .waitingForSettings
         backgroundTask?.progress.completedUnitCount = 25
         backgroundTask?.updateTitle(
-            "Roam Control",
-            subtitle: "Choose Pair with Roam Control in Settings"
+            "漫游控制",
+            subtitle: "在“设置”中选择“与漫游控制配对”"
         )
     }
 
     private func advertisementDidFail() {
         guard workerIsRunning, !cancellationRequested else { return }
         fail(
-            "Local Network access is required. Enable it in Settings › Apps › Roam Control, then try again."
+            "需要本地网络权限。请在“设置”›“App”›“漫游控制”中启用，然后重试。"
         )
     }
 
@@ -279,7 +279,7 @@ final class OnDevicePairingCoordinator {
             backgroundTask?.progress.completedUnitCount = 80
 
             guard let recordStore else {
-                fail("Roam Control could not securely store the new pairing.")
+                fail("漫游控制无法安全存储新的配对记录。")
                 return
             }
 
@@ -290,8 +290,8 @@ final class OnDevicePairingCoordinator {
                     self.phase = .success(device)
                     self.backgroundTask?.progress.completedUnitCount = 100
                     self.backgroundTask?.updateTitle(
-                        "Roam Control",
-                        subtitle: "Pairing complete"
+                        "漫游控制",
+                        subtitle: "配对完成"
                     )
                     self.finishBackgroundTask(success: true)
                 } catch {
@@ -306,12 +306,12 @@ final class OnDevicePairingCoordinator {
 
     private func pairingTaskExpired() {
         cancellationRequested = false
-        pendingFailureMessage = "Pairing took too long. Return to Roam Control and try again."
+        pendingFailureMessage = "配对耗时过长。请返回漫游控制后重试。"
         if let activeSession {
             rc_remote_pairing_session_cancel(activeSession)
         }
         publisher.stop()
-        phase = .failed(pendingFailureMessage ?? "Pairing took too long. Please try again.")
+        phase = .failed(pendingFailureMessage ?? "配对耗时过长，请重试。")
         finishBackgroundTask(success: false)
     }
 
@@ -352,7 +352,7 @@ private enum NativePairingOutcome: Sendable {
     init(result: RCRemotePairingResult, returnCode: Int32) {
         guard returnCode == 0 else {
             let message = Self.string(from: result.error_message)
-            self = .failure(message.isEmpty ? "The iPhone could not finish pairing." : message)
+            self = .failure(message.isEmpty ? "iPhone 无法完成配对。" : message)
             return
         }
 
@@ -360,7 +360,7 @@ private enum NativePairingOutcome: Sendable {
             let recordPointer = result.pairing_record,
             result.pairing_record_length > 0
         else {
-            self = .failure("The pairing engine returned an empty record.")
+            self = .failure("配对引擎返回了空记录。")
             return
         }
 

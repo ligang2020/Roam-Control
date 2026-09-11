@@ -36,7 +36,7 @@ struct SearchSuggestionsView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(accessibilityLabel(for: suggestion))
-                .accessibilityHint("Selects this location")
+                .accessibilityHint("选择此位置")
 
                 if index < suggestions.count - 1 {
                     Divider()

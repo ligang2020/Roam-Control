@@ -348,7 +348,7 @@ final class AppModel {
     func restoreRealLocationFromInterruptedSession() async {
         guard let recovery = interruptedSession else { return }
         guard case .paired = pairingStatus else {
-            interruptedSessionError = "Pair this iPhone before restoring its real location."
+            interruptedSessionError = "请先配对此 iPhone，再恢复真实位置。"
             return
         }
 
@@ -359,7 +359,7 @@ final class AppModel {
         do {
             guard let pairingRecord = try await pairingService.pairingRecordData() else {
                 isRestoringInterruptedSession = false
-                interruptedSessionError = "The saved pairing record is unavailable. Pair this iPhone again."
+                interruptedSessionError = "已保存的配对记录不可用，请重新配对此 iPhone。"
                 return
             }
             deviceSession.start(

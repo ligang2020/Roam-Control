@@ -62,7 +62,7 @@ struct SessionRecoveryView: View {
             }
 
             VStack(spacing: 9) {
-                Text("Previous Session Interrupted")
+                Text("上次会话已中断")
                     .font(.title2.bold())
 
                 Text(summaryText)
@@ -74,21 +74,21 @@ struct SessionRecoveryView: View {
 
             VStack(spacing: 10) {
                 recoveryDetail(
-                    title: recovery.isWalkingRoute ? "Last saved point" : "Last location",
+                    title: recovery.isWalkingRoute ? "上次保存的位置" : "上次位置",
                     value: recovery.lastReportedLocation.name,
                     symbol: "mappin.and.ellipse"
                 )
 
                 if let destination = recovery.destination, recovery.isWalkingRoute {
                     recoveryDetail(
-                        title: "Destination",
+                        title: "目的地",
                         value: destination.name,
                         symbol: "flag.checkered"
                     )
                 }
 
                 recoveryDetail(
-                    title: "Last active",
+                    title: "上次活动时间",
                     value: recovery.updatedAt.formatted(date: .abbreviated, time: .shortened),
                     symbol: "clock"
                 )
@@ -99,12 +99,12 @@ struct SessionRecoveryView: View {
             if isResuming || isRestoring {
                 HStack(spacing: 10) {
                     ProgressView()
-                    Text(isRestoring ? "Restoring real location…" : "Preparing the route…")
+                    Text(isRestoring ? "正在恢复真实位置…" : "正在准备路线…")
                         .font(.subheadline.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
 
-                Button("Cancel", role: .cancel, action: onCancel)
+                Button("取消", role: .cancel, action: onCancel)
                     .foregroundStyle(.secondary)
             } else {
                 Button(action: onResume) {
@@ -116,20 +116,20 @@ struct SessionRecoveryView: View {
                 .disabled(!isPaired)
 
                 Button(role: .destructive, action: onRestore) {
-                    Label("Restore Real Location", systemImage: "location.slash.fill")
+                    Label("恢复真实位置", systemImage: "location.slash.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .disabled(!isPaired)
 
-                Button("My Real Location Is Already Back", action: onAlreadyRestored)
+                Button("我的真实位置已恢复", action: onAlreadyRestored)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
             if !isPaired {
-                Label("Pair this iPhone before resuming or restoring the session.", systemImage: "iphone.and.arrow.forward")
+                Label("请先配对此 iPhone，再继续或恢复会话。", systemImage: "iphone.and.arrow.forward")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -143,7 +143,7 @@ struct SessionRecoveryView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Text("Restoring reconnects only long enough to clear the simulated location. Nothing starts automatically.")
+            Text("恢复过程只会短暂重新连接以清除模拟位置，不会自动启动任何操作。")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
@@ -153,14 +153,14 @@ struct SessionRecoveryView: View {
 
     private var summaryText: String {
         if let destination = recovery.destination, recovery.isWalkingRoute {
-            return "Roam Control did not receive a normal end signal while walking to \(destination.name). You can continue from the last saved point or safely restore your real location."
+            return "步行前往 \(destination.name) 时，漫游控制未收到正常结束信号。你可以从上次保存的位置继续，或安全地恢复真实位置。"
         }
 
-        return "Roam Control did not receive a normal end signal for the location at \(recovery.lastReportedLocation.name). Choose what this iPhone should do next."
+        return "位置 \(recovery.lastReportedLocation.name) 的会话未收到正常结束信号。请选择此 iPhone 接下来要执行的操作。"
     }
 
     private var resumeTitle: String {
-        recovery.isWalkingRoute ? "Resume Walking" : "Resume Location"
+        recovery.isWalkingRoute ? "继续步行" : "继续位置控制"
     }
 
     private func recoveryDetail(title: String, value: String, symbol: String) -> some View {

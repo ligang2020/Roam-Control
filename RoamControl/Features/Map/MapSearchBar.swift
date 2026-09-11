@@ -45,7 +45,7 @@ struct MapSearchBar: View {
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
 
-            TextField("Search places or coordinates", text: $query)
+            TextField("搜索地点或坐标", text: $query)
                 .focused($isFocused)
                 .textInputAutocapitalization(.words)
                 .autocorrectionDisabled()
@@ -65,20 +65,20 @@ struct MapSearchBar: View {
                         .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Clear search")
+                .accessibilityLabel("清除搜索")
             }
         }
         .frame(minHeight: 44)
     }
 
     private var dismissKeyboardButton: some View {
-        Button("Done") {
+        Button("完成") {
             isFocused = false
         }
         .font(.subheadline.weight(.semibold))
         .buttonStyle(.plain)
         .frame(minWidth: 44, minHeight: 44)
-        .accessibilityLabel("Dismiss keyboard")
-        .accessibilityHint("Dismisses the keyboard")
+        .accessibilityLabel("收起键盘")
+        .accessibilityHint("收起键盘")
     }
 }

@@ -70,7 +70,7 @@ struct LocationSelectionCard: View {
                             } else {
                                 Image(systemName: "figure.walk")
                             }
-                            Text(isPreviewingWalkingRoute ? "Planning Walking Route…" : "Preview Walking Route")
+                            Text(isPreviewingWalkingRoute ? "正在规划步行路线…" : "预览步行路线")
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -88,7 +88,7 @@ struct LocationSelectionCard: View {
                 }
 
                 if isActive && !isShowingActiveTarget {
-                    Button("Stop Location", role: .destructive, action: onStop)
+                    Button("停止位置控制", role: .destructive, action: onStop)
                         .buttonStyle(.bordered)
                         .controlSize(.regular)
                         .frame(maxWidth: .infinity)
@@ -102,7 +102,7 @@ struct LocationSelectionCard: View {
 
                 if shouldOfferLocalDevVPN {
                     Link(destination: localDevVPNInstallURL) {
-                        Label("Get LocalDevVPN", systemImage: "arrow.up.right.square")
+                        Label("获取 LocalDevVPN", systemImage: "arrow.up.right.square")
                             .font(.subheadline.weight(.semibold))
                     }
                     .frame(maxWidth: .infinity)
@@ -114,9 +114,9 @@ struct LocationSelectionCard: View {
                         .foregroundStyle(.blue)
 
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Choose a location")
+                        Text("选择位置")
                             .font(.headline)
-                        Text("Search above or tap anywhere on the map.")
+                        Text("请在上方搜索，或点击地图上的任意位置。")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -177,7 +177,7 @@ struct LocationSelectionCard: View {
                             .frame(width: 44, height: 44)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(didCopyCoordinates ? "Location copied" : "Copy location")
+                    .accessibilityLabel(didCopyCoordinates ? "位置已复制" : "复制位置")
                 }
             }
         }
@@ -192,7 +192,7 @@ struct LocationSelectionCard: View {
                 .frame(width: 44, height: 44)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isFavourite ? "Remove from favourites" : "Add to favourites")
+        .accessibilityLabel(isFavourite ? "从收藏中移除" : "添加到收藏")
 
         if canClearSelection {
             Button(action: onClearSelection) {
@@ -202,14 +202,14 @@ struct LocationSelectionCard: View {
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Clear selected location")
+            .accessibilityLabel("清除所选位置")
         }
     }
 
     @ViewBuilder
     private func resumeLastControls(_ lastLocation: LocationTarget) -> some View {
         let resumeButton = Button(action: onResumeLast) {
-            Label("Resume \(lastLocation.name)", systemImage: "arrow.clockwise")
+            Label("继续 \(lastLocation.name)", systemImage: "arrow.clockwise")
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                 .frame(maxWidth: .infinity)
         }
@@ -219,7 +219,7 @@ struct LocationSelectionCard: View {
 
         let dismissButton = Button(action: onDismissLast) {
             if dynamicTypeSize.isAccessibilitySize {
-                Label("Dismiss", systemImage: "xmark")
+                Label("忽略", systemImage: "xmark")
                     .frame(minWidth: 44, minHeight: 44)
             } else {
                 Image(systemName: "xmark")
@@ -229,7 +229,7 @@ struct LocationSelectionCard: View {
         }
         .buttonStyle(.bordered)
         .controlSize(.large)
-        .accessibilityLabel("Dismiss last location suggestion")
+        .accessibilityLabel("忽略上次位置建议")
 
         if dynamicTypeSize.isAccessibilitySize {
             VStack(spacing: 8) {
@@ -308,25 +308,25 @@ struct LocationSelectionCard: View {
 
     private var shouldOfferLocalDevVPN: Bool {
         guard case .failed(let message) = sessionPhase else { return false }
-        return message.localizedCaseInsensitiveContains("Install LocalDevVPN")
+        return message.localizedCaseInsensitiveContains("安装 LocalDevVPN")
     }
 
     private var primaryTitle: String {
         switch sessionPhase {
         case .openingLocalDevVPN:
-            "Opening LocalDevVPN…"
+            "正在打开 LocalDevVPN…"
         case .discovering:
-            "Finding This iPhone…"
+            "正在查找此 iPhone…"
         case .connecting:
-            "Starting Location…"
+            "正在启动位置控制…"
         case .active:
-            isShowingActiveTarget ? "Stop Location" : "Update Location"
+            isShowingActiveTarget ? "停止位置控制" : "更新位置"
         case .stopping:
-            "Stopping Location…"
+            "正在停止位置控制…"
         case .failed:
-            "Try Again"
+            "重试"
         case .idle:
-            "Start Location"
+            "开始位置控制"
         }
     }
 
@@ -365,21 +365,21 @@ struct LocationSelectionCard: View {
         switch sessionPhase {
         case .idle:
             return isPaired
-                ? "Start when ready. Stop restores this iPhone's real location."
-                : "Pair this iPhone before starting location control."
+                ? "准备好后即可开始。停止后会恢复此 iPhone 的真实位置。"
+                : "请先配对此 iPhone，再开始位置控制。"
         case .openingLocalDevVPN:
-            return "Roam Control will return automatically after the tunnel starts."
+            return "隧道启动后，漫游控制会自动返回。"
         case .discovering:
-            return "Finding the paired iPhone through the private local tunnel."
+            return "正在通过私有本地隧道查找已配对的 iPhone。"
         case .connecting:
-            return "Opening the secure location session."
+            return "正在打开安全位置会话。"
         case .active(let target):
             if !isShowingActiveTarget, let location {
-                return "Currently using \(target.name). Update to move to \(location.name)."
+                return "当前使用 \(target.name)。更新后将移动到 \(location.name)。"
             }
-            return "This iPhone is using \(target.name). Stop to restore its real location."
+            return "此 iPhone 当前使用 \(target.name) 作为位置。停止后将恢复真实位置。"
         case .stopping:
-            return "Restoring this iPhone's real location."
+            return "正在恢复此 iPhone 的真实位置。"
         case .failed(let message):
             return message
         }

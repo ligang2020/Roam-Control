@@ -1,4 +1,4 @@
-name: Build unsigned IPA
+name: 构建并上传未签名 IPA
 
 on:
   workflow_dispatch:
@@ -11,16 +11,51 @@ permissions:
 
 jobs:
   build:
+    name: 构建 iOS IPA
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
 
-      - name: Select Xcode
+      - name: 选择 Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 'latest-stable'
 
-      - name: Build archive
+      - name: 检查工程依赖
+        run: |
+          set -euo pipefail
+          test -d RoamControl.xcodeproj
+          test -d Frameworks/RoamPairingFFI.xcframework
+          test -f Native/RoamPairingFFI/Cargo.toml
+
+      - name: 安装 Rust 工具链
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim
+
+      - name: 构建本地配对引擎
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$RUNNER_TEMP/roamcontrol-rust-target"
+          cargo build \
+            --manifest-path Native/RoamPairingFFI/Cargo.toml \
+            --release \
+            --target aarch64-apple-ios
+          cargo build \
+            --manifest-path Native/RoamPairingFFI/Cargo.toml \
+            --release \
+            --target aarch64-apple-ios-sim
+          xcodebuild -create-xcframework \
+            -library "$CARGO_TARGET_DIR/aarch64-apple-ios/release/libroam_pairing_ffi.a" \
+            -headers Native/RoamPairingFFI/include \
+            -library "$CARGO_TARGET_DIR/aarch64-apple-ios-sim/release/libroam_pairing_ffi.a" \
+            -headers Native/RoamPairingFFI/include \
+            -output "$RUNNER_TEMP/RoamPairingFFI.xcframework"
+          rm -rf Frameworks/RoamPairingFFI.xcframework
+          cp -R "$RUNNER_TEMP/RoamPairingFFI.xcframework" Frameworks/RoamPairingFFI.xcframework
+
+      - name: 构建归档
         run: |
           set -euo pipefail
           xcodebuild archive \
@@ -31,29 +66,42 @@ jobs:
             -archivePath "$RUNNER_TEMP/RoamControl.xcarchive" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            IPHONEOS_DEPLOYMENT_TARGET=26.2
+            CODE_SIGN_IDENTITY=""
 
-      - name: Package IPA
+      - name: 打包 IPA
         id: package
         run: |
           set -euo pipefail
           APP="$RUNNER_TEMP/RoamControl.xcarchive/Products/Applications/RoamControl.app"
+          test -d "$APP"
           mkdir -p "$RUNNER_TEMP/Payload"
           cp -R "$APP" "$RUNNER_TEMP/Payload/"
           cd "$RUNNER_TEMP"
-          zip -qry RoamControl.ipa Payload
-          echo "path=$RUNNER_TEMP/RoamControl.ipa" >> "$GITHUB_OUTPUT"
+          zip -qry RoamControl-zh.ipa Payload
+          echo "path=$RUNNER_TEMP/RoamControl-zh.ipa" >> "$GITHUB_OUTPUT"
 
-      - name: Upload IPA artifact
+      - name: 上传 Actions 构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: RoamControl-ipa
+          name: RoamControl-zh-ipa
           path: ${{ steps.package.outputs.path }}
           if-no-files-found: error
+          retention-days: 30
 
-      - name: Upload tagged release asset
+      - name: 上传标签 Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.package.outputs.path }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+
+      - name: 写入构建摘要
+        run: |
+          {
+            echo '## IPA 构建完成'
+            echo
+            echo '- 文件：`RoamControl-zh.ipa`'
+            echo '- 类型：未签名 IPA（需要使用个人证书、AltStore 或 SideStore 重新签名后安装）'
+            echo '- 构建版本：`${{ github.sha }}`'
+          } >> "$GITHUB_STEP_SUMMARY"

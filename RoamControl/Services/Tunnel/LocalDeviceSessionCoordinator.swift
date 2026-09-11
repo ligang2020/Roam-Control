@@ -123,7 +123,7 @@ final class LocalDeviceSessionCoordinator: NSObject {
         guard !workerIsRunning, !isBusy else { return }
 
 #if targetEnvironment(simulator)
-        phase = .failed("A real iPhone is required to start a location session.")
+        phase = .failed("必须使用实体 iPhone 才能启动位置会话。")
 #else
         cancellationRequested = false
         pendingFailureMessage = nil
@@ -162,7 +162,7 @@ final class LocalDeviceSessionCoordinator: NSObject {
         else { return .unavailable }
 
         guard rc_location_session_update(activeSession, target.latitude, target.longitude) == 0 else {
-            fail("Roam Control could not update the active location.")
+            fail("漫游控制无法更新活动位置。")
             return .failed
         }
 
@@ -172,8 +172,8 @@ final class LocalDeviceSessionCoordinator: NSObject {
         )
         phase = .active(target)
         backgroundTask?.updateTitle(
-            "Roam Control",
-            subtitle: "Location active at \(target.name)"
+            "漫游控制",
+            subtitle: "位置控制于 \(target.name) 已启动"
         )
         return .updated
     }
@@ -188,7 +188,7 @@ final class LocalDeviceSessionCoordinator: NSObject {
         UIApplication.shared.open(Self.enableURL) { [weak self] opened in
             guard !opened else { return }
             Task { @MainActor in
-                self?.fail("Install LocalDevVPN before starting a location session.")
+                self?.fail("请先安装 LocalDevVPN，再启动位置会话。")
             }
         }
 #endif
@@ -341,11 +341,11 @@ final class LocalDeviceSessionCoordinator: NSObject {
                 guard let self, self.phase == .discovering else { return }
                 if self.sawNonMatchingService {
                     self.fail(
-                        "Roam Control found an outdated device announcement. Toggle LocalDevVPN off and on, then try again."
+                        "漫游控制发现过期的设备公告。请关闭再打开 LocalDevVPN，然后重试。"
                     )
                 } else {
                     self.fail(
-                        "Roam Control could not find this iPhone through LocalDevVPN. Check that the tunnel is enabled and try again."
+                        "漫游控制无法通过 LocalDevVPN 找到此 iPhone。请确认隧道已启用，然后重试。"
                     )
                 }
             }
@@ -409,7 +409,7 @@ final class LocalDeviceSessionCoordinator: NSObject {
 
     private func submitLocationTask() {
         guard let pendingSession, resolvedService != nil else {
-            fail("Roam Control could not prepare the selected location.")
+            fail("漫游控制无法准备所选位置。")
             return
         }
 
@@ -434,15 +434,15 @@ final class LocalDeviceSessionCoordinator: NSObject {
         }
 
         guard wasRegistered else {
-            fail("iOS could not prepare the location session. Close Roam Control, reopen it, and try again.")
+            fail("iOS 无法准备位置会话。请关闭漫游控制，重新打开后再试。")
             return
         }
 
         submittedTaskIdentifier = identifier
         let request = BGContinuedProcessingTaskRequest(
             identifier: identifier,
-            title: "Roam Control",
-            subtitle: "Connecting to \(pendingSession.target.name)…"
+            title: "漫游控制",
+            subtitle: "正在连接到 \(pendingSession.target.name)…"
         )
         request.strategy = .fail
 
@@ -507,11 +507,11 @@ final class LocalDeviceSessionCoordinator: NSObject {
 
     private func runNativeLocationSession() {
         guard let pendingSession, let resolvedService else {
-            fail("Roam Control lost the location session details.")
+            fail("漫游控制丢失了位置会话信息。")
             return
         }
         guard let session = rc_location_session_create() else {
-            fail("Roam Control could not start its location engine.")
+            fail("漫游控制无法启动位置引擎。")
             return
         }
 
@@ -584,8 +584,8 @@ final class LocalDeviceSessionCoordinator: NSObject {
             mobileDataGuidance = .turnBackOn
         }
         backgroundTask?.updateTitle(
-            "Roam Control",
-            subtitle: "Location active at \(target.name)"
+            "漫游控制",
+            subtitle: "位置控制于 \(target.name) 已启动"
         )
     }
 
@@ -839,9 +839,9 @@ final class LocalDeviceSessionCoordinator: NSObject {
     }
 
     private func isRecoverableTunnelConnectionFailure(_ message: String) -> Bool {
-        message.localizedCaseInsensitiveContains("through LocalDevVPN")
-            || message.localizedCaseInsensitiveContains("make the iPhone connection available")
-            || message.localizedCaseInsensitiveContains("open the secure device tunnel")
+        message.localizedCaseInsensitiveContains("通过 LocalDevVPN")
+            || message.localizedCaseInsensitiveContains("使 iPhone 连接可用")
+            || message.localizedCaseInsensitiveContains("打开安全设备隧道")
     }
 
     private func routeStartupForCurrentNetwork() {
@@ -923,7 +923,7 @@ final class LocalDeviceSessionCoordinator: NSObject {
         UIApplication.shared.open(Self.enableURL) { [weak self] opened in
             guard !opened else { return }
             Task { @MainActor in
-                self?.fail("Install LocalDevVPN before starting a location session.")
+                self?.fail("请先安装 LocalDevVPN，再启动位置会话。")
             }
         }
 #endif
@@ -947,7 +947,7 @@ extension LocalDeviceSessionCoordinator: NetServiceBrowserDelegate, NetServiceDe
         didNotSearch errorDict: [String: NSNumber]
     ) {
         MainActor.assumeIsolated {
-            fail("Local Network access is required to find this iPhone.")
+            fail("需要本地网络权限才能找到此 iPhone。")
         }
     }
 
@@ -980,7 +980,7 @@ private enum NativeLocationOutcome: Sendable {
         } else {
             message = ""
         }
-        self = .failure(message.isEmpty ? "The iPhone could not start the location session." : message)
+        self = .failure(message.isEmpty ? "iPhone 无法启动位置会话。" : message)
     }
 }
 
